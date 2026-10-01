@@ -451,7 +451,7 @@ export class OmpProviderSession {
     mcpConnector?: OmpMcpConnector,
     mcpInitializationTimeoutMs?: number,
     reportOperationalFailure: OmpOperationalFailureReporter = () => {},
-    hostInheritEnv: readonly string[] = [],
+    hostLaunchSettings?: { inheritEnv: readonly string[], allowHomeExecution: boolean },
   ): Promise<OmpProviderSession> {
     const resumeSessionId = ompPersistenceSessionId(input);
     if (resumeSessionId && !input.config.persist) {
@@ -467,7 +467,7 @@ export class OmpProviderSession {
     const normalizedConfig = normalizeOmpSessionConfig(
       effectiveConfig,
       capabilities.includes("permission"),
-      hostInheritEnv,
+      hostLaunchSettings,
     );
     const configuredRedactionValues = configuredOutputRedactionValues(
       normalizedConfig.outputRedaction ?? "none",

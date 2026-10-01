@@ -117,7 +117,7 @@ export function withCommittedOmpSelection(
 export function normalizeOmpSessionConfig(
   config: ProviderSessionConfig,
   permissionSupported = false,
-  hostInheritEnv: readonly string[] = [],
+  hostLaunchSettings?: { inheritEnv: readonly string[], allowHomeExecution: boolean },
 ): NormalizedOmpStartOptions {
   if (Object.keys(config.settings).length > 0) {
     throw new OmpPublicError("OMP does not expose live provider settings");
@@ -137,12 +137,13 @@ export function normalizeOmpSessionConfig(
   const tools = allowedOmpTools(deniedTools);
   const params = options.params ?? {};
   const env = { ...options.env, ...config.env };
-  const inheritEnv = mergeOmpInheritedEnvironmentNames(hostInheritEnv, options.inheritEnv);
+  const inheritEnv = mergeOmpInheritedEnvironmentNames(hostLaunchSettings?.inheritEnv ?? [], options.inheritEnv);
   return {
     cwd: config.cwd,
     ...(options.command ? { command: options.command } : {}),
     ...(Object.keys(env).length > 0 ? { env } : {}),
     ...(inheritEnv ? { inheritEnv } : {}),
+    ...(hostLaunchSettings?.allowHomeExecution ? { allowHomeExecution: true } : {}),
     outputRedaction: options.outputRedaction,
     mode: parsedMode.data,
     thinkingOption: config.thinkingOption,

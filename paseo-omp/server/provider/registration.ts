@@ -75,7 +75,7 @@ export interface OmpProviderOptions {
     options: ProviderCatalogOptionsCompat,
     timeoutMs: number | undefined,
   ) => Promise<ProviderAvailabilityCompat>;
-  resolveHostInheritEnv?: () => Promise<readonly string[]>;
+  resolveHostLaunchSettings?: () => Promise<{ inheritEnv: readonly string[], allowHomeExecution: boolean }>;
 }
 
 function stableJson(value: unknown): string {
@@ -106,8 +106,9 @@ export function createOmpProvider(options: OmpProviderOptions = {}): ProviderReg
     providerOptionsSchema: OmpProviderOptionsSchema,
     async getCatalogCacheKey(catalogOptions) {
       const providerOptions = parseOmpProviderOptions(catalogOptions.providerOptions);
+      const hostSettings = await options.resolveHostLaunchSettings?.();
       const inheritEnv = mergeOmpInheritedEnvironmentNames(
-        (await options.resolveHostInheritEnv?.()) ?? [],
+        hostSettings?.inheritEnv ?? [],
         providerOptions.inheritEnv,
       );
       // Profile providers cannot safely hash explicit environment values because they may be
@@ -173,7 +174,7 @@ export function createOmpProvider(options: OmpProviderOptions = {}): ProviderReg
         options.browserAuthorizationRegistry,
         undefined,
         options.reportOperationalFailure,
-        options.resolveHostInheritEnv,
+        options.resolveHostLaunchSettings,
       );
     },
   };

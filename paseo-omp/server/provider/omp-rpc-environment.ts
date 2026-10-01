@@ -25,6 +25,7 @@ export interface OmpStartOptions {
   model?: string;
   mode?: "full" | "write" | "ask";
   thinkingOption?: string;
+  allowHomeExecution?: boolean;
   systemPrompt?: string;
   roleModels?: Readonly<{ smol?: string; slow?: string; plan?: string }>;
   tools?: readonly string[];
@@ -298,6 +299,9 @@ export function buildOmpSpawnRequest(
   const args = rawPrefixArgs.map((argument) =>
     validateBoundedText(argument, "command argument", MAX_PATH_LENGTH),
   );
+  if (options.allowHomeExecution && !args.includes("--allow-home")) {
+    args.push("--allow-home");
+  }
   if (/[\r\n]/u.test(command)) throw new Error("Invalid OMP command");
   const mode = options.mode ?? "full";
   if (mode !== "full" && mode !== "write" && mode !== "ask") throw new Error("Invalid OMP mode");

@@ -6,6 +6,7 @@ export const environmentNameSchema = z.string().regex(/^[A-Za-z_][A-Za-z0-9_]{0,
 
 export const providerLaunchSettingsSchema = z.object({
   inheritEnv: z.array(environmentNameSchema).max(MAX_INHERITED_ENVIRONMENT_NAMES).default([]),
+  allowHomeExecution: z.boolean().default(false),
 });
 
 export type ProviderLaunchSettings = z.infer<typeof providerLaunchSettingsSchema>;

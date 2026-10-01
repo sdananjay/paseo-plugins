@@ -56,9 +56,9 @@ function scoped<T extends { store?: OmpStore }, R>(handler: (input: T) => R) {
 export default function contribute(server: PluginServerContext) {
   server.registerSettings(composerPillSettings);
   const launchSettings = server.registerSettings(providerLaunchSettings);
-  const resolveHostInheritEnv = async (): Promise<readonly string[]> => {
+  const resolveHostLaunchSettings = async (): Promise<{ inheritEnv: readonly string[], allowHomeExecution: boolean }> => {
     const current = await launchSettings.read();
-    if (current.status === "ready") return current.values.inheritEnv;
+    if (current.status === "ready") return current.values;
     throw new OmpPublicError("OMP host launch settings are unavailable");
   };
   const browserAuthorizationRegistry = new OmpBrowserAuthorizationRegistry();
@@ -72,7 +72,7 @@ export default function contribute(server: PluginServerContext) {
         browserAuthorizationRegistry,
         reportProtocolViolation: protocolViolations.report,
         reportOperationalFailure: operationalFailures.report,
-        resolveHostInheritEnv,
+        resolveHostLaunchSettings,
       }),
     );
   }

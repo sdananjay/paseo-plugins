@@ -6,7 +6,7 @@ import {
   SettingsSection,
 } from "@getpaseo/plugin/client/ui";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Text, View } from "react-native";
+import { Text, View, Switch } from "react-native";
 import {
   providerLaunchSettings,
   providerLaunchSettingsSchema,
@@ -80,6 +80,31 @@ function ProviderLaunchSettingsControls({ settings }: { settings: ReadySettings 
               disabled={settings.saving}
               onPress={settings.reload}
             />
+          ) : null}
+        </SettingsCard>
+      </SettingsSection>
+      <SettingsSection
+        title="Home Directory Access"
+        info="Allow OMP agents to execute globally from the home directory instead of being isolated to /tmp."
+      >
+        <SettingsCard>
+          <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", padding: 12 }}>
+            <Text style={{ fontSize: 14, fontWeight: "500", color: "#fff" }}>Allow Home Execution (--allow-home)</Text>
+            <Switch
+              value={settings.values.allowHomeExecution}
+              disabled={settings.saving}
+              onValueChange={async (value) => {
+                await settings.save({ allowHomeExecution: value }, settings.revision);
+              }}
+            />
+          </View>
+          {settings.values.allowHomeExecution ? (
+            <View style={{ padding: 12, backgroundColor: "rgba(255, 60, 60, 0.1)", borderTopWidth: 1, borderColor: "rgba(128, 128, 128, 0.2)" }}>
+              <Text style={{ color: "#ff5252", fontWeight: "bold", marginBottom: 4 }}>⚠️ High Risk Warning</Text>
+              <Text style={{ fontSize: 13, color: "#ccc" }}>
+                Bypasses OMP's default safety isolation. A hallucinating agent could accidentally modify or delete critical personal files in your root home directory.
+              </Text>
+            </View>
           ) : null}
         </SettingsCard>
       </SettingsSection>
